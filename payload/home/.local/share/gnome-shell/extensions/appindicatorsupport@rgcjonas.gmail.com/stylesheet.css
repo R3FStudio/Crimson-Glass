@@ -1,0 +1,38 @@
+.tray-overflow-popup .popup-menu-content {
+    border-radius: 16px;
+    padding: 6px;
+    spacing: 4px;
+}
+
+.tray-overflow-popup .tray-overflow-icon {
+    -natural-hpadding: 9px;
+    -minimum-hpadding: 9px;
+    min-height: 34px;
+    min-width: 34px;
+    border-radius: 10px;
+}
+
+.tray-overflow-popup .tray-overflow-icon:hover,
+.tray-overflow-popup .tray-overflow-icon:focus,
+.tray-overflow-popup .tray-overflow-icon:active {
+    background-color: rgba(225, 52, 72, 0.24);
+}
+
+.tray-overflow-popup .tray-overflow-action-scroll {
+    max-height: 208px;
+    max-width: 300px;
+    margin: 0 0 4px;
+    border-bottom: 1px solid rgba(150, 150, 160, 0.30);
+}
+
+.tray-overflow-action-scroll .popup-menu-content {
+    padding: 0;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.tray-overflow-action-scroll .popup-menu-item {
+    padding: 6px 11px;
+    spacing: 8px;
+    border-radius: 8px;
+}

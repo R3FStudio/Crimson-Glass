@@ -1,0 +1,23 @@
+#!/usr/bin/python3
+"""Use Scarlett for capture when available and preserve Bluetooth stereo."""
+import json
+import subprocess
+import time
+
+def audio_setup():
+    subprocess.run(['wpctl', 'settings', '--save', 'bluetooth.autoswitch-to-headset-profile', 'false'],
+                   check=False)
+    for _ in range(4):
+        reply = subprocess.run(['pactl', '--format=json', 'list', 'sources'],
+                               text=True, capture_output=True, check=False)
+        if reply.returncode == 0:
+            for source in json.loads(reply.stdout):
+                name = source['name']
+                label = f'{name} {source.get("description", "")}'.lower()
+                if not name.endswith('.monitor') and ('scarlett' in label or 'focusrite' in label):
+                    subprocess.run(['pactl', 'set-default-source', name], check=True)
+                    return
+        time.sleep(2)
+
+if __name__ == '__main__':
+    audio_setup()

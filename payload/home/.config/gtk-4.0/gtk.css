@@ -1,0 +1,55 @@
+/* Derive the light/dark palette from GTK's current background. */
+:root {
+    --crimson-base: rgb(from @theme_bg_color
+        clamp(0, calc((r - 60) * 4), 255) clamp(0, calc((g - 60) * 4), 255) clamp(0, calc((b - 60) * 4), 255));
+    --crimson-sidebar: rgb(from var(--crimson-base) calc(r * .95) calc(g * .95) calc(b * .97));
+    --crimson-card: rgb(from var(--crimson-base) calc(r * .94) calc(g * .94) calc(b * .96));
+    --crimson-popover: rgb(from var(--crimson-base) calc(r * .95) calc(g * .95) calc(b * .96));
+    --crimson-scroll-bg: var(--view-bg-color);
+    --window-bg-color: var(--crimson-base);
+    --view-bg-color: var(--crimson-base);
+    --sidebar-bg-color: var(--crimson-sidebar);
+    --sidebar-backdrop-color: var(--crimson-sidebar);
+    --secondary-sidebar-bg-color: var(--crimson-sidebar);
+    --secondary-sidebar-backdrop-color: var(--crimson-sidebar);
+    --headerbar-bg-color: var(--crimson-sidebar);
+    --headerbar-backdrop-color: var(--crimson-sidebar);
+    --card-bg-color: var(--crimson-card);
+    --dialog-bg-color: var(--crimson-card);
+    --popover-bg-color: var(--crimson-popover);
+}
+
+window.background {
+    background-color: var(--window-bg-color);
+}
+
+/* GTK paints undershoots only when more content exists beyond that edge. */
+.sidebar, .sidebar-pane, placessidebar {
+    --crimson-scroll-bg: var(--sidebar-bg-color);
+}
+.card, list.boxed-list {
+    --crimson-scroll-bg: var(--card-bg-color);
+}
+popover > contents {
+    --crimson-scroll-bg: var(--popover-bg-color);
+}
+scrolledwindow > undershoot.top {
+    background: linear-gradient(to bottom, var(--crimson-scroll-bg), transparent 82%);
+    box-shadow: none;
+}
+
+scrolledwindow > undershoot.bottom {
+    background: linear-gradient(to top, var(--crimson-scroll-bg), transparent 82%);
+    box-shadow: none;
+}
+
+scrolledwindow > undershoot.left {
+    background: linear-gradient(to right, var(--crimson-scroll-bg), transparent 82%);
+    box-shadow: none;
+}
+
+scrolledwindow > undershoot.right {
+    background: linear-gradient(to left, var(--crimson-scroll-bg), transparent 82%);
+    box-shadow: none;
+}
+@import 'colors.css';

@@ -1,0 +1,8 @@
+{
+  "uuid": "desktop-glass@local",
+  "name": "Desktop Glass",
+  "description": "A movable glass clock and system monitor for the desktop.",
+  "shell-version": ["48"],
+  "settings-schema": "org.gnome.shell.extensions.desktop-glass",
+  "version": 3
+}

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Haste Studio
+Comment=HyperX Pulsefire Haste 2 mouse settings and 3D preview
+Exec=/usr/bin/python3 "@HOME@/.local/share/haste-studio/haste_studio.py"
+Icon=org.local.HasteStudio
+Terminal=false
+Categories=Settings;HardwareSettings;

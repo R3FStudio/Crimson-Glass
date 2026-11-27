@@ -1,0 +1,11 @@
+{
+  "background": "#11111b",
+  "sidebar": "#0c0c14",
+  "surface": "#1e1e2e",
+  "border": "#313244",
+  "foreground": "#cdd6f4",
+  "muted": "#9aa6bd",
+  "accent": "#89b4fa",
+  "metric": "#89dceb",
+  "selection": "#313c53"
+}

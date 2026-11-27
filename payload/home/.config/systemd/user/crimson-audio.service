@@ -1,0 +1,10 @@
+[Unit]
+Description=Use Scarlett capture and keep Bluetooth playback in stereo
+After=wireplumber.service pipewire-pulse.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.local/bin/crimson-audio
+
+[Install]
+WantedBy=default.target

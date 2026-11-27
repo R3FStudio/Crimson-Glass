@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Hypercolor
+Comment=Open the Hypercolor control UI
+Exec=@HOME@/.local/bin/hypercolor-app
+Terminal=false
+Categories=Settings;Utility;
+Keywords=rgb;lighting;led;
+Icon=hypercolor
+StartupNotify=true

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Terlox
+Exec=/usr/bin/terlox
+Icon=app.terlox.terminal
+Terminal=false
+Categories=System;TerminalEmulator;
+X-TerminalArgExec=-e
+X-TerminalArgDir=--working-directory

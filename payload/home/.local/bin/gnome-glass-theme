@@ -1,0 +1,85 @@
+#!/usr/bin/python3
+from pathlib import Path
+
+from gi.repository import Gio, GLib
+
+extensions = Path.home() / ".local/share/gnome-shell/extensions"
+
+
+def extension_settings(uuid, schema_id):
+    source = Gio.SettingsSchemaSource.new_from_directory(
+        str(extensions / uuid / "schemas"), Gio.SettingsSchemaSource.get_default(), False
+    )
+    return Gio.Settings.new_full(source.lookup(schema_id, False), None, None)
+
+
+theme = Gio.Settings.new("org.gnome.desktop.interface")
+menu = extension_settings("arcmenu@arcmenu.com", "org.gnome.shell.extensions.arcmenu")
+dock = extension_settings("dash-to-dock@micxgx.gmail.com", "org.gnome.shell.extensions.dash-to-dock")
+blur = extension_settings("blur-my-shell@aunetx", "org.gnome.shell.extensions.blur-my-shell")
+popup = extension_settings("blur-my-shell@aunetx", "org.gnome.shell.extensions.blur-my-shell.popup")
+
+
+
+def ensure_glass_pipelines():
+    pipelines = blur.get_value("pipelines")
+    variant_type = pipelines.get_type()
+    recipes = GLib.Variant.parse(variant_type, """{
+        'pipeline_start_charcoal_glass': {
+            'name': <'Glossy Dark Menu Glass'>,
+            'effects': <[
+                <{'type': <'dual_kawase_blur'>, 'id': <'effect_start_dark_blur'>,
+                   'params': <{'unscaled_radius': <124>, 'brightness': <0.92>}>}>,
+                <{'type': <'refraction'>, 'id': <'effect_start_dark_refraction'>,
+                   'params': <{'blur_radius': <0.0>, 'strength': <0.50>,
+                                'edge_size': <19.0>, 'rim_width': <2.3>,
+                                'gloss': <0.68>, 'specular_strength': <0.20>,
+                                'tint': <0.04>, 'shadow': <0.08>, 'rgb_fringing': <0.01>}>}>
+            ]>
+        },
+        'pipeline_light_menu_glass': {
+            'name': <'Glossy Light Menu Glass'>,
+            'effects': <[
+                <{'type': <'dual_kawase_blur'>, 'id': <'effect_start_light_blur'>,
+                   'params': <{'unscaled_radius': <124>, 'brightness': <1.0>}>}>,
+                <{'type': <'refraction'>, 'id': <'effect_start_light_refraction'>,
+                   'params': <{'blur_radius': <0.0>, 'strength': <0.50>,
+                                'edge_size': <19.0>, 'rim_width': <2.3>,
+                                'gloss': <0.68>, 'specular_strength': <0.20>,
+                                'tint': <0.0>, 'shadow': <0.08>, 'rgb_fringing': <0.01>}>}>
+            ]>
+        }
+    }""", None, None)
+    entries = {}
+    for dictionary in (pipelines, recipes):
+        for i in range(dictionary.n_children()):
+            item = dictionary.get_child_value(i)
+            entries[item.get_child_value(0).get_string()] = item
+    updated = GLib.Variant.new_array(GLib.VariantType.new("{sa{sv}}"), list(entries.values()))
+    if updated != pipelines:
+        blur.set_value("pipelines", updated)
+
+
+def apply_theme(*_args):
+    dark = theme.get_string("color-scheme") == "prefer-dark"
+    color, foreground, rim = (
+        ((34, 38, 48), "rgb(242,244,249)", "255,255,255")
+        if dark else ((226, 232, 242), "rgb(28,32,42)", "40,48,64")
+    )
+    dock_opacity = 0.28
+    menu_color, menu_opacity = ((7, 8, 12), 0.49) if dark else (color, 0.64)
+    menu_rgb = ",".join(map(str, menu_color))
+    dock.set_string("background-color", "#{:02x}{:02x}{:02x}".format(*color))
+    dock.set_double("background-opacity", dock_opacity)
+    menu.set_string("menu-background-color", f"rgba({menu_rgb},{menu_opacity})")
+    menu.set_string("menu-foreground-color", foreground)
+    menu.set_string("menu-border-color", "rgba(225,52,72,0.60)")
+    menu.set_string("menu-separator-color", f"rgba({rim},0.16)")
+    popup.set_string("pipeline", "pipeline_start_charcoal_glass" if dark else "pipeline_light_menu_glass")
+    Gio.Settings.sync()
+
+
+ensure_glass_pipelines()
+theme.connect("changed::color-scheme", apply_theme)
+apply_theme()
+GLib.MainLoop().run()

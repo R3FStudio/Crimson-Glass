@@ -1,0 +1,44 @@
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
+@define-color theme_bg_color #000000;
+@define-color theme_base_color #000000;
+@define-color theme_text_color #f4f2f3;
+@define-color theme_fg_color #f4f2f3;
+@define-color theme_selected_bg_color #a91f37;
+@define-color theme_selected_fg_color white;
+window.background, .background, textview text, treeview.view {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+headerbar, .titlebar:not(headerbar), .sidebar, placessidebar {
+    background-image: none;
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+menu, popover.background, toolbar {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+selection, row:selected, treeview:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+scrolledwindow > undershoot.top {
+    background: linear-gradient(to bottom, @theme_base_color, transparent 82%);
+    box-shadow: none;
+}
+
+scrolledwindow > undershoot.bottom {
+    background: linear-gradient(to top, @theme_base_color, transparent 82%);
+    box-shadow: none;
+}
+
+scrolledwindow > undershoot.left {
+    background: linear-gradient(to right, @theme_base_color, transparent 82%);
+    box-shadow: none;
+}
+
+scrolledwindow > undershoot.right {
+    background: linear-gradient(to left, @theme_base_color, transparent 82%);
+    box-shadow: none;
+}

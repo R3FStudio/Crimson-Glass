@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.desktop-glass" path="/org/gnome/shell/extensions/desktop-glass/">
+    <key name="clock" type="(iid)">
+      <default>(54, 64, 1.0)</default>
+      <summary>Clock position and scale</summary>
+    </key>
+    <key name="system" type="(iid)">
+      <default>(304, 64, 1.0)</default>
+      <summary>System widget position and scale</summary>
+    </key>
+  </schema>
+</schemalist>

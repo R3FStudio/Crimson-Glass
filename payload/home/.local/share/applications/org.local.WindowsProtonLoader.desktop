@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Proton (GE, HDR Auto)
+Comment=Run a Windows game with automatic HDR detection
+Type=Application
+Exec="@HOME@/.local/bin/windows-app-loader" proton %f
+Icon=steam
+NoDisplay=true
+Terminal=false
+MimeType=application/x-local-windows-program;application/x-ms-dos-executable;application/x-msdownload;application/vnd.microsoft.portable-executable;

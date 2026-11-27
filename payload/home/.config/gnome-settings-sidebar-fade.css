@@ -1,0 +1,12 @@
+/* GTK displays these nodes only while there is content beyond that edge. */
+navigation-split-view > .sidebar-pane > navigation-view-page > toolbarview > scrolledwindow > undershoot.top,
+navigation-split-view > navigation-view > navigation-view-page > toolbarview > scrolledwindow > undershoot.top {
+    background: linear-gradient(to bottom, var(--sidebar-bg-color) 0%, transparent 82%);
+    box-shadow: none;
+}
+
+navigation-split-view > .sidebar-pane > navigation-view-page > toolbarview > scrolledwindow > undershoot.bottom,
+navigation-split-view > navigation-view > navigation-view-page > toolbarview > scrolledwindow > undershoot.bottom {
+    background: linear-gradient(to top, var(--sidebar-bg-color) 0%, transparent 82%);
+    box-shadow: none;
+}

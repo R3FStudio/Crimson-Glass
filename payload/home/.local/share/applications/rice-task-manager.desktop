@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Task Manager
+Comment=Live Linux process and performance monitor
+Exec="@HOME@/.local/bin/rice-task-manager"
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;Monitor;
+StartupNotify=true
+StartupWMClass=local.rice.TaskManager

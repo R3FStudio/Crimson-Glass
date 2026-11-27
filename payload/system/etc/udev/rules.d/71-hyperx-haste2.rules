@@ -1,0 +1,3 @@
+# Grant the active local user access only to the Haste 2 vendor HID interface.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="0b97", IMPORT{builtin}="usb_id"
+SUBSYSTEM=="hidraw", ENV{ID_VENDOR_ID}=="03f0", ENV{ID_MODEL_ID}=="0b97", ENV{ID_USB_INTERFACE_NUM}=="02", TAG+="uaccess"

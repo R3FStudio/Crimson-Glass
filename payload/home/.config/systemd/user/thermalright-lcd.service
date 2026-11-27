@@ -1,0 +1,12 @@
+[Unit]
+Description=Keep the Thermalright LCD theme visible
+
+[Service]
+ExecStartPre=/usr/local/bin/trcc display resume --retries 10
+ExecStart=/usr/local/bin/trcc display keepalive 87ad:70db --interval 0.5
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

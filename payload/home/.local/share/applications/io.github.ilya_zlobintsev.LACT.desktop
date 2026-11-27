@@ -1,0 +1,22 @@
+[Desktop Entry]
+Type=Application
+Name=LACT
+Comment=Control your graphics cards
+GenericName=GPU Control Application
+Exec=lact gui
+Icon=io.github.ilya_zlobintsev.LACT
+Categories=System;
+Keywords=AMD;GPU;Radeon;
+Actions=OverlaySettings;OverlayPreview;SteamOverlay;
+
+[Desktop Action OverlaySettings]
+Name=Configure Performance Overlay
+Exec=/usr/bin/goverlay
+
+[Desktop Action OverlayPreview]
+Name=Preview Performance Overlay
+Exec=/usr/bin/env MANGOHUD=1 /usr/bin/vkcube --wsi wayland --gpu_number 0 --width 980 --height 650
+
+[Desktop Action SteamOverlay]
+Name=Start Steam with Performance Overlay
+Exec=/usr/bin/env MANGOHUD=1 /usr/bin/steam

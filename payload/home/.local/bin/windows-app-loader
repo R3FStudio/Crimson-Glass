@@ -1,0 +1,84 @@
+#!/usr/bin/python3
+"""Open Windows files from the desktop, with Wine or the Proton runtime."""
+
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+DATA = Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local/share")
+
+
+def command_for(mode, path):
+    suffix = path.suffix.lower()
+    if suffix == ".msi" and mode == "wine":
+        return ["/usr/bin/wine", "start", "/unix", str(path)]
+
+    with path.open("rb") as executable:
+        if suffix != ".exe" or executable.read(2) != b"MZ":
+            raise ValueError("Choose a Windows .exe program or a .msi installer.")
+
+    if mode == "wine":
+        return ["/usr/bin/wine", str(path)]
+
+    local_launcher = Path.home() / ".local/bin/umu-run"
+    launcher = str(local_launcher) if local_launcher.is_file() else shutil.which("umu-run")
+    if not launcher:
+        raise ValueError("Install umu-launcher to open this program with Proton.")
+    return [launcher, str(path)]
+
+
+def proton_environment(*, sdr):
+    tools = DATA / "Steam/compatibilitytools.d"
+    installed = [p for p in tools.glob("GE-Proton*") if (p / "proton").is_file()]
+
+    def version(path):
+        return tuple(int(number) for number in re.findall(r"\d+", path.name))
+
+    environment = os.environ.copy()
+    # Let DXGI detect real HDR on Wayland. Clear inherited overrides so the
+    # file-manager choice controls this launch independently of other games.
+    for key in ("PROTON_USE_WAYLAND", "WINE_GRAPHICS_DRIVER", "PROTON_ENABLE_HDR",
+                "PROTON_USE_HDR", "PROTON_FORCE_HDR", "WAYLANDDRV_FORCE_HDR",
+                "DXVK_HDR", "DXVK_NO_HDR"):
+        environment.pop(key, None)
+    environment.update(
+        PROTONPATH=str(max(installed, key=version)) if installed else "GE-Proton",
+        WINEPREFIX=str(DATA / "windows-app-loader/proton-prefix"),
+        PROTON_ENABLE_WAYLAND="1" if environment.get("WAYLAND_DISPLAY") and not sdr else "0",
+    )
+    if sdr:
+        environment["DXVK_NO_HDR"] = "1"
+    return environment
+
+
+def main(mode, filename):
+    path = Path(filename).absolute()
+    try:
+        command = command_for(mode, path)
+        environment = proton_environment(sdr=mode == "proton-sdr") if mode != "wine" else None
+        with tempfile.TemporaryFile() as log:
+            result = subprocess.run(
+                command, cwd=path.parent, env=environment,
+                stdout=log, stderr=subprocess.STDOUT, check=False,
+            )
+            if result.returncode:
+                log.seek(max(0, log.tell() - 1800))
+                detail = log.read().decode(errors="replace").strip()
+                raise RuntimeError(detail or f"The program exited with code {result.returncode}.")
+    except (OSError, ValueError, RuntimeError) as error:
+        subprocess.run([
+            "/usr/bin/zenity", "--error", "--no-markup",
+            "--title=Windows App Loader", f"--text=Could not open {path.name}.\n\n{error}",
+        ], check=False)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3 or sys.argv[1] not in ("wine", "proton", "proton-sdr"):
+        sys.exit("Usage: windows-app-loader {wine|proton|proton-sdr} /path/to/program.exe")
+    sys.exit(main(*sys.argv[1:]))

@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+
+settings=/usr/bin/gnome-control-center
+resource=/org/gnome/Settings/gtk/style.css
+style="$HOME/.config/gnome-settings-sidebar-fade.css"
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/gnome-settings-sidebar"
+if [ -r "$style" ] && mkdir -p -- "$cache"; then
+    candidate=$(mktemp "$cache/style.XXXXXXXX") || exec "$settings" "$@"
+    if { gresource extract "$settings" "$resource" &&
+         printf '\n' &&
+         cat -- "$style"; } > "$candidate" &&
+       mv -fT -- "$candidate" "$cache/style.css"; then
+        export G_RESOURCE_OVERLAYS="$resource=$cache/style.css${G_RESOURCE_OVERLAYS:+:$G_RESOURCE_OVERLAYS}"
+    else
+        rm -f -- "$candidate"
+    fi
+fi
+dock_plugin="$HOME/.local/lib/gnome-settings-dock-toggle/dock-toggle.so"
+if [ -r "$dock_plugin" ]; then
+    export GNOME_SETTINGS_DOCK_ORIGINAL_PRELOAD="${LD_PRELOAD-}"
+    export LD_PRELOAD="$dock_plugin${LD_PRELOAD:+:$LD_PRELOAD}"
+fi
+exec "$settings" "$@"

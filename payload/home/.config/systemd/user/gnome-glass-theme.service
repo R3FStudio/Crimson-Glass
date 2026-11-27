@@ -1,0 +1,9 @@
+[Unit]
+Description=Match GNOME dock and Start menu glass to the desktop theme
+
+[Service]
+ExecStart=%h/.local/bin/gnome-glass-theme
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

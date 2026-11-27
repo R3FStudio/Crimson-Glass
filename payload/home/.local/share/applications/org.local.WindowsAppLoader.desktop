@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Wine
+Comment=Open Windows programs and installers with Wine
+Type=Application
+Exec="@HOME@/.local/bin/windows-app-loader" wine %f
+TryExec=@HOME@/.local/bin/windows-app-loader
+Icon=wine
+NoDisplay=true
+Terminal=false
+MimeType=application/x-local-windows-program;application/x-ms-dos-executable;application/x-msdownload;application/vnd.microsoft.portable-executable;application/x-msi;

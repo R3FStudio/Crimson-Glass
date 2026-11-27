@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=App Menu
+Comment=Browse and search applications
+Icon=@HOME@/.local/share/icons/hicolor/scalable/apps/dock-start-menu.svg
+Exec=/usr/bin/gdbus call --session --dest com.Extensions.ArcMenu --object-path /com/Extensions/ArcMenu --method com.Extensions.ArcMenu.ToggleArcMenu
+Terminal=false
+Categories=Utility;

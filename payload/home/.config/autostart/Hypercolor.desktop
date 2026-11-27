@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Hypercolor
+Exec=sh -c "if command -v hypercolor-app >/dev/null; then exec hypercolor-app --minimized; else exec \"\$HOME/.local/bin/hypercolor-app\" --minimized; fi"
+Terminal=false
+StartupNotify=false

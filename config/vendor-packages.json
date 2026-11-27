@@ -1,0 +1,32 @@
+[
+  {
+    "package": "lact",
+    "file": "lact-0.10.1-0.amd64.debian-13.deb",
+    "url": "https://github.com/ilya-zlobintsev/LACT/releases/download/v0.10.1/lact-0.10.1-0.amd64.debian-13.deb",
+    "sha256": "44f25c6e95ad6d0fb869b36ae10c593bb22b7d021cd3f1f282cc677ed883248d"
+  },
+  {
+    "package": "hypercolor",
+    "file": "hypercolor_0.9.0_amd64.deb",
+    "url": "https://github.com/hyperb1iss/hypercolor/releases/download/v0.9.0/hypercolor_0.9.0_amd64.deb",
+    "sha256": "52391cdee131620cff077c9f9e55b4f4420ed7e39f09ea2ebfd185ec521690c8"
+  },
+  {
+    "package": "trcc-linux",
+    "file": "trcc-linux_9.12.0-1_all.deb",
+    "url": "https://github.com/Lexonight1/thermalright-trcc-linux/releases/download/v9.12.0/trcc-linux_9.12.0-1_all.deb",
+    "sha256": "a48e3ccf98cd913129877e1139d6f98eca56c61e8f8a130d156c56c1049ed639"
+  },
+  {
+    "package": "umu-launcher",
+    "file": "umu-launcher_1.4.4-1_all_debian-13.deb",
+    "url": "https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.4.4/umu-launcher_1.4.4-1_all_debian-13.deb",
+    "sha256": "11a22c8125787e861355bf93953783f61420840fae6e9c0fd43c28dc01e0a947"
+  },
+  {
+    "package": "python3-umu-launcher",
+    "file": "python3-umu-launcher_1.4.4-1_amd64_debian-13.deb",
+    "url": "https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.4.4/python3-umu-launcher_1.4.4-1_amd64_debian-13.deb",
+    "sha256": "602c4ac7210a54b835530f927b10c2781e51e294b1cf46448006e48fae66f232"
+  }
+]
