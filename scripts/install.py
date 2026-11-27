@@ -42,6 +42,9 @@ BOOT_FILES = (
     'etc/default/grub.d/97-eac-linux.cfg', 'etc/default/grub.d/98-readable-menu.cfg',
     'etc/default/grub.d/99-wait-for-choice.cfg',
 )
+ZRAM_CONFIG = 'etc/systemd/zram-generator.conf.d/50-crimson-glass.conf'
+MEMORY_SYSCTL = 'etc/sysctl.d/60-crimson-memory.conf'
+
 DEVICE_FILES = (
     'etc/udev/rules.d/71-hyperx-haste2.rules', 'etc/modprobe.d/trcc-lcd.conf',
     'etc/modules-load.d/trcc-sg.conf', 'etc/modules-load.d/trcc-rapl.conf',
@@ -218,6 +221,32 @@ def install_system(files, backup):
             run('sudo', 'install', '-D', '-m', '0644', str(dest), str(saved))
         run('sudo', 'install', '-D', '-m', '0644', str(source), str(dest))
 
+def apply_memory_profile(backup):
+    zswap = Path('/sys/module/zswap/parameters/enabled')
+    if zswap.is_file() and zswap.read_text().strip().upper() in {'Y', '1'}:
+        print('Memory profile skipped because zswap is enabled.')
+        return
+
+    config = Path('/') / ZRAM_CONFIG
+    directory = config.parent
+    other_configs = [directory.parent / 'zram-generator.conf', *directory.glob('*.conf')]
+    if (full_profile.installed('zram-tools') or
+            (not config.is_file() and Path('/sys/block/zram0').is_dir()) or
+            any(path != config and path.is_file() and
+                re.search(r'^\s*\[zram0\]\s*$', path.read_text(), re.MULTILINE)
+                for path in other_configs)):
+        print('Memory profile skipped because an existing zram setup manages zram0.')
+        return
+
+    install_system((ZRAM_CONFIG,), backup)
+    if not full_profile.installed('systemd-zram-generator'):
+        run('sudo', 'apt-get', 'install', 'systemd-zram-generator')
+    run('sudo', 'systemctl', 'daemon-reload')
+    run('sudo', 'systemctl', 'start', 'dev-zram0.swap')
+    install_system((MEMORY_SYSCTL,), backup)
+    run('sudo', 'sysctl', '-p', '/' + MEMORY_SYSCTL)
+
+
 def apply_data_volume(uuid, backup):
     device = Path('/dev/disk/by-uuid') / uuid
     probe = subprocess.check_output(['lsblk', '-ndo', 'FSTYPE', str(device)], text=True).strip()
@@ -243,6 +272,7 @@ def main():
     parser.add_argument('--all', action='store_true', help='restore the full profile and install feature dependencies')
     parser.add_argument('--packages', action='store_true', help='install Debian package dependencies')
     parser.add_argument('--apps', action='store_true', help='install the Bitwarden and Parsec Flatpaks')
+    parser.add_argument('--memory', action='store_true', help='enable compressed swap and memory tuning')
     parser.add_argument('--hdr', action='store_true', help='install Mesa Vulkan from Debian backports')
     parser.add_argument('--deb', type=Path, action='append', default=[], help='install a local vendor .deb; repeat as needed')
     parser.add_argument('--boot', action='store_true', help='apply GRUB menu and kernel settings')
@@ -256,9 +286,9 @@ def main():
     if args.data_uuid and not re.fullmatch(r'[A-Za-z0-9-]{4,64}', args.data_uuid):
         parser.error('Invalid filesystem UUID')
     if args.all:
-        args.packages = args.hdr = args.devices = True
+        args.packages = args.hdr = args.devices = args.memory = True
         args.boot = full_profile.boot_available()
-    optional = {key: getattr(args, key) for key in ('all', 'packages', 'apps', 'boot', 'hdr', 'deb', 'devices', 'data_uuid')}
+    optional = {key: getattr(args, key) for key in ('all', 'packages', 'apps', 'boot', 'hdr', 'deb', 'devices', 'memory', 'data_uuid')}
     if args.stage and any(optional.values()):
         parser.error('--stage only supports user files')
     if args.dry_run:
@@ -332,6 +362,8 @@ def main():
         run('systemctl', '--user', 'enable', '--now', 'crimson-audio.service')
         if full_profile.installed('lact'):
             run('sudo', 'systemctl', 'enable', '--now', 'lactd.service')
+    if args.memory:
+        apply_memory_profile(backup)
     if args.devices:
         install_system(DEVICE_FILES, backup)
         run('sudo', 'udevadm', 'control', '--reload-rules')

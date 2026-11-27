@@ -80,26 +80,36 @@ function alignWithDock(pointer, box, dock) {
     const top = bounds.get_top_left();
     const bottom = bounds.get_bottom_right();
     const work = pointer._workArea;
-    // Quick Settings wraps its box pointer in a zero-sized actor. Find the
-    // same usable coordinate space as GNOME's BoxPointer._reposition().
-    let left, right, monitorLeft;
-    for (; parent; parent = parent.get_parent()) {
-        const [ok, offset] = parent.transform_stage_point(work.x, top.y);
-        if (!ok)
-            continue;
-        monitorLeft = offset;
-        [, left] = parent.transform_stage_point(Math.max(top.x + EDGE_INSET, work.x), top.y);
-        [, right] = parent.transform_stage_point(Math.min(bottom.x - EDGE_INSET,
-            work.x + work.width), top.y);
-        break;
-    }
-    if (!parent || left >= right)
+    const width = box.get_width();
+    const source = pointer._sourceExtents;
+    if (!work || !source || width <= 0 || work.width <= 0 ||
+        ![top.x, top.y, bottom.x, work.x, work.width, width, box.x1, box.y1].every(Number.isFinite))
         return;
 
-    const width = box.get_width();
+    const stageLeft = Math.max(top.x + EDGE_INSET, work.x);
+    const stageRight = Math.min(bottom.x - EDGE_INSET, work.x + work.width);
+    if (stageLeft >= stageRight)
+        return;
+
+    // Quick Settings can wrap its box pointer in a zero-sized actor.
+    let left, right, monitorLeft;
+    for (; parent; parent = parent.get_parent()) {
+        const [offsetOk, offset] = parent.transform_stage_point(work.x, top.y);
+        const [leftOk, localLeft] = parent.transform_stage_point(stageLeft, top.y);
+        const [rightOk, localRight] = parent.transform_stage_point(stageRight, top.y);
+        if (!offsetOk || !leftOk || !rightOk ||
+            ![offset, localLeft, localRight].every(Number.isFinite) || localLeft >= localRight)
+            continue;
+        [left, right, monitorLeft] = [localLeft, localRight, offset];
+        break;
+    }
+    if (!parent)
+        return;
+
     const furthestRight = right - width;
-    const sourceCenter = pointer._sourceExtents.get_top_left().x +
-        pointer._sourceExtents.get_width() / 2;
+    const sourceCenter = source.get_top_left().x + source.get_width() / 2;
+    if (!Number.isFinite(sourceCenter))
+        return;
     const status = Object.values(dock.statusArea ?? {}).some(item =>
         item?.menu?._boxPointer === pointer);
     const rightAligned = status && !pointer.has_style_class_name('tray-overflow-popup') &&

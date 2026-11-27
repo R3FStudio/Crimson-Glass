@@ -13,7 +13,7 @@ sh ./setup.sh --dry-run
 sh ./setup.sh
 ```
 
-The full setup applies the desktop profile, installs feature dependencies, and configures the available boot, graphics, storage, and device integrations. It can prompt for sudo and package confirmation. Sign out and back in to load the desktop changes, then reboot for GRUB and driver changes. The installer backs up replaced user files and GNOME settings under `~/.local/state/crimson-glass/backups/`.
+The full setup applies the desktop profile, installs feature dependencies, enables compressed swap to reduce disk I/O under memory pressure, and configures the available boot, graphics, storage, and device integrations. It can prompt for sudo and package confirmation. Sign out and back in to load the desktop changes, then reboot for GRUB and driver changes. The installer backs up replaced user files and GNOME settings under `~/.local/state/crimson-glass/backups/`.
 
 For the GNOME desktop and its package dependencies, run `sh ./install.sh --packages`. Add `--apps` if you also want Bitwarden and Parsec. See the [feature and install reference](docs/inventory.md) for the individual flags and their effects.
 

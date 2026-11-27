@@ -20,6 +20,7 @@ import {
 const PIXEL_EPSILON = 1 / 1024;
 // a clone that stopped being painted, like a workspace thumbnail once the overview closes
 const CLONE_TARGET_LIFETIME_US = 1000000;
+const POPUP_RELEASE_DELAY_S = 5;
 const CAPTURE_TEXTURE_REGION = 'bms_capture_region';
 
 function getCaptureSnippet() {
@@ -191,6 +192,7 @@ export const BackdropCaptureEffect = GObject.registerClass({
     _init(contentActor, allowRgbFallback = false) {
         super._init();
         this.target = null;
+        this.releaseTimer = 0;
         this.targets = new Map();
         this.cloneTargets = new Map();
         this.cloneViewPaint = -1;
@@ -394,19 +396,45 @@ export const BackdropCaptureEffect = GObject.registerClass({
             this.release();
 
         super.vfunc_set_actor(actor);
-        if (actor)
-            registerBackdrop(this);
+        if (!actor)
+            return;
+
+        registerBackdrop(this);
+        if (this.allowRgbFallback) {
+            actor.connectObject('notify::mapped', () => {
+                this.cancelReleaseTimer();
+                if (!actor.mapped && this.target) {
+                    this.releaseTimer = GLib.timeout_add_seconds(GLib.PRIORITY_LOW, POPUP_RELEASE_DELAY_S, () => {
+                        this.releaseTimer = 0;
+                        this.releaseTargets();
+                        return GLib.SOURCE_REMOVE;
+                    });
+                }
+            }, this);
+        }
     }
 
-    release() {
-        unregisterBackdrop(this);
-        if (this.output)
-            this.output.destroy();
+    cancelReleaseTimer() {
+        if (!this.releaseTimer)
+            return;
+        GLib.source_remove(this.releaseTimer);
+        this.releaseTimer = 0;
+    }
+
+    releaseTargets() {
         for (const view of [...this.viewDestroyIds.keys()])
             this.releaseView(view);
         this.targets.clear();
         this.cloneTargets.clear();
         this.target = null;
         this.actorGeometry = null;
+    }
+
+    release() {
+        this.get_actor()?.disconnectObject(this);
+        this.cancelReleaseTimer();
+        unregisterBackdrop(this);
+        this.output?.destroy();
+        this.releaseTargets();
     }
 });
