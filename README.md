@@ -19,6 +19,22 @@ For the GNOME desktop and its package dependencies, run `sh ./install.sh --packa
 
 The bundled Crimson Pulse cursor works with Adwaita application icons. For the red icons in the screenshot, install the red variant of [Tela Circle](https://github.com/vinceliuice/Tela-circle-icon-theme) before running setup.
 
+## Gaming performance
+
+The full installer includes a game launcher that holds the system performance profile for the game and releases it on exit. In Steam, add this under **Properties → Launch Options** for the game:
+
+```sh
+~/.local/bin/crimson-game %command%
+```
+
+For standalone Windows games, choose **Open With → Proton (Gaming)** in Files. On a desktop-only install, add `--gaming` to install power profile support. A performance profile helps only if the game responds to the changed power settings. For a game limited by the GPU, try the game’s own upscaler in Quality mode. If [Gamescope](https://github.com/ValveSoftware/gamescope) is installed, the launcher can also render at a lower resolution and upscale it to the display:
+
+```sh
+~/.local/bin/crimson-game --upscale 1920x1080 2560x1440 -- %command%
+```
+
+This is an optional trade-off between rendering cost and image detail. The standard launcher keeps the game’s resolution and HDR behavior.
+
 ## My setup
 
 I use Crimson Glass on a desktop that dual boots Debian and Windows. My setup uses two monitors, including an HDR display, a shared NTFS drive, a USB audio interface, Bluetooth headphones, and a cooler with an LCD.

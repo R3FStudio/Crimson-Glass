@@ -27,7 +27,7 @@ SETTINGS = {
     'settings-daemon-plugins-power': 'settings-daemon/plugins/power',
 }
 PACKAGES = (
-    'adwaita-icon-theme', 'bluez', 'curl', 'dconf-cli', 'flatpak', 'fonts-noto-core',
+    'adwaita-icon-theme', 'bluez', 'curl', 'dconf-cli', 'desktop-file-utils', 'flatpak', 'fonts-noto-core',
     'gcc', 'gir1.2-gtop-2.0', 'gir1.2-gtk-4.0', 'gir1.2-adw-1',
     'glib2.0-bin', 'goverlay', 'libadwaita-1-dev', 'libhidapi-hidraw0',
     'mangohud', 'mesa-vulkan-drivers', 'pkg-config', 'python3-gi',
@@ -120,7 +120,7 @@ def apply_home(home, backup):
         put(umu, home / '.local/bin/umu-run', home, backup)
     # Shared NTFS mounts can mask executable bits on the source files.
     for name in ('gnome-glass-theme', 'gnome-settings-with-fade', 'rice-task-manager',
-                 'windows-app-loader', 'umu-run'):
+                 'windows-app-loader', 'umu-run', 'crimson-game'):
         launcher = home / '.local/bin' / name
         if launcher.is_file() and not launcher.is_symlink():
             launcher.chmod(launcher.stat().st_mode | 0o100)
@@ -199,6 +199,8 @@ def apply_settings(home, backup):
         if name == 'desktop-interface' and not (home / '.local/share/icons/Tela-circle-red-dark/index.theme').exists():
             profile = profile.replace("icon-theme='Tela-circle-red-dark'", "icon-theme='Adwaita'")
         run('dconf', 'load', key, input=profile, text=True)
+    if shutil.which('update-desktop-database'):
+        run('update-desktop-database', str(home / '.local/share/applications'))
     mime_config = home / ".config/mimeapps.list"
     if mime_config.is_file():
         (backup / "home/.config").mkdir(parents=True, exist_ok=True)
@@ -272,6 +274,7 @@ def main():
     parser.add_argument('--all', action='store_true', help='restore the full profile and install feature dependencies')
     parser.add_argument('--packages', action='store_true', help='install Debian package dependencies')
     parser.add_argument('--apps', action='store_true', help='install the Bitwarden and Parsec Flatpaks')
+    parser.add_argument('--gaming', action='store_true', help='install support for per-game performance profiles')
     parser.add_argument('--memory', action='store_true', help='enable compressed swap and memory tuning')
     parser.add_argument('--hdr', action='store_true', help='install Mesa Vulkan from Debian backports')
     parser.add_argument('--deb', type=Path, action='append', default=[], help='install a local vendor .deb; repeat as needed')
@@ -286,9 +289,9 @@ def main():
     if args.data_uuid and not re.fullmatch(r'[A-Za-z0-9-]{4,64}', args.data_uuid):
         parser.error('Invalid filesystem UUID')
     if args.all:
-        args.packages = args.hdr = args.devices = args.memory = True
+        args.packages = args.hdr = args.devices = args.memory = args.gaming = True
         args.boot = full_profile.boot_available()
-    optional = {key: getattr(args, key) for key in ('all', 'packages', 'apps', 'boot', 'hdr', 'deb', 'devices', 'memory', 'data_uuid')}
+    optional = {key: getattr(args, key) for key in ('all', 'packages', 'apps', 'boot', 'hdr', 'deb', 'devices', 'memory', 'gaming', 'data_uuid')}
     if args.stage and any(optional.values()):
         parser.error('--stage only supports user files')
     if args.dry_run:
@@ -318,6 +321,8 @@ def main():
         extra = ('gnome-terminal', 'ntfs-3g', 'os-prober', 'pipewire-pulse',
                  'pulseaudio-utils', 'wine32:i386', 'wireplumber') if args.all else ()
         run('sudo', 'apt-get', 'install', *PACKAGES, *extra)
+    if args.gaming and not shutil.which('powerprofilesctl'):
+        run('sudo', 'apt-get', 'install', 'power-profiles-daemon')
     if args.hdr:
         apt_source = 'etc/apt/sources.list.d/debian-trixie-backports-hdr.sources'
         if not Path('/' + apt_source).exists():

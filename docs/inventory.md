@@ -26,6 +26,7 @@ Use `sh ./install.sh` to apply the user profile. The flags below add dependencie
 | `--packages` | Installs Debian package dependencies for the desktop tools. |
 | `--apps` | Installs Bitwarden and Parsec from Flathub. |
 | `--boot` | Updates an existing GRUB installation with Windows discovery, a larger font, a persistent menu, and the boot arguments in `payload/system/etc/default/grub.d/`. |
+| `--gaming` | Installs power profile support for the per-game launcher when needed. |
 | `--memory` | Enables high-priority LZ4 compressed swap sized to half of RAM, up to 8 GiB. Applies the memory settings after compressed swap starts. |
 | `--hdr` | Installs Mesa Vulkan from Debian backports. If a saved calibration is unavailable, enable HDR per monitor in GNOME Displays. |
 | `--devices` | Installs the HyperX and Thermalright rules. The bundled LCD keepalive service targets the cooler used for this profile. |
@@ -35,6 +36,10 @@ Use `sh ./install.sh` to apply the user profile. The flags below add dependencie
 | `--stage DIRECTORY` | Stages user files in a scratch directory for inspection. |
 
 For an NTFS volume marked dirty by Windows, disable Fast Startup and fully shut down Windows. Run a Windows filesystem repair if the volume still reports errors.
+
+## Gaming profile
+
+`crimson-game` requests the system performance profile for a single launch using Power Profiles Daemon. It passes the game's arguments through, releases the profile when the command exits, and uses normal launch behavior if the system does not offer a performance profile. The optional `--upscale` flag launches [Gamescope](https://github.com/ValveSoftware/gamescope) with explicit render and output resolutions. It requires a separate Gamescope installation and changes the rendering resolution. Prefer a game’s built-in upscaler when available.
 
 ## Memory and boot checks
 

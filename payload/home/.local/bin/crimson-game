@@ -1,0 +1,41 @@
+#!/bin/sh
+set -eu
+
+usage() {
+    printf 'Usage: crimson-game [--upscale RENDER_WxH DISPLAY_WxH --] COMMAND [ARGUMENTS...]\n' >&2
+    exit 2
+}
+
+valid_size() {
+    printf '%s\n' "$1" | grep -qxE '[1-9][0-9]{1,4}x[1-9][0-9]{1,4}'
+}
+
+if [ "${1:-}" = '--upscale' ]; then
+    [ "$#" -ge 5 ] && [ "$4" = '--' ] || usage
+    valid_size "$2" && valid_size "$3" || usage
+    render_width=${2%x*}
+    render_height=${2#*x}
+    display_width=${3%x*}
+    display_height=${3#*x}
+    if [ "$render_width" -ge "$display_width" ] || [ "$render_height" -ge "$display_height" ] ||
+       [ "$display_width" -gt 16384 ] || [ "$display_height" -gt 16384 ]; then
+        usage
+    fi
+    if ! command -v gamescope >/dev/null 2>&1; then
+        printf 'The --upscale option needs Gamescope. You can also use your game’s built-in upscaler.\n' >&2
+        exit 127
+    fi
+    shift 4
+    set -- gamescope -f -w "$render_width" -h "$render_height" \
+        -W "$display_width" -H "$display_height" -F fsr -- "$@"
+fi
+
+[ "$#" -gt 0 ] || usage
+
+if command -v powerprofilesctl >/dev/null 2>&1 &&
+   LC_ALL=C powerprofilesctl list 2>/dev/null | grep -qE '^[[:space:]*]*performance:'; then
+    exec powerprofilesctl launch --profile performance \
+        --reason 'Playing a game' --appid org.local.CrimsonGlass.Gaming -- "$@"
+fi
+
+exec "$@"

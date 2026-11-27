@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Proton (Gaming)
+Comment=Open a Windows game and hold the system performance profile while it runs
+Exec="@HOME@/.local/bin/crimson-game" "@HOME@/.local/bin/windows-app-loader" proton %f
+Icon=steam
+Terminal=false
+NoDisplay=true
+MimeType=application/x-local-windows-program;application/x-ms-dos-executable;application/x-msdownload;application/vnd.microsoft.portable-executable;
