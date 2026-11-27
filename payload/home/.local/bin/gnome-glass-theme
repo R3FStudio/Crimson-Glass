@@ -25,6 +25,13 @@ def ensure_glass_pipelines():
     pipelines = blur.get_value("pipelines")
     variant_type = pipelines.get_type()
     recipes = GLib.Variant.parse(variant_type, """{
+        'pipeline_crimson_overview': {
+            'name': <'Crimson Overview Glass'>,
+            'effects': <[
+                <{'type': <'dual_kawase_blur'>, 'id': <'effect_crimson_overview_blur'>,
+                   'params': <{'unscaled_radius': <72>, 'brightness': <0.78>}>}>
+            ]>
+        },
         'pipeline_start_charcoal_glass': {
             'name': <'Glossy Dark Menu Glass'>,
             'effects': <[

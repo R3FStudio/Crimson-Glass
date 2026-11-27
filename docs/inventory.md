@@ -6,7 +6,7 @@ Crimson Glass packages a personal Debian 13 and GNOME 48 setup. Start with the [
 
 | Area | Features |
 | --- | --- |
-| GNOME Shell | Glass bottom dock with status controls, tray overflow, auto-hide and window spacing. ArcMenu provides search and app categories. Super + Shift + S opens the screenshot tool. |
+| GNOME Shell | Glass bottom dock on the primary monitor with status controls, tray overflow, auto-hide and window spacing. GNOME opens on the desktop at sign-in. The Overview button opens a workspace view backed by blurred wallpaper. ArcMenu provides search and app categories. Super + Shift + S opens the screenshot tool. |
 | Appearance | Dark and light GTK styling, HDR-aware menu blur, Settings sidebar fades and a dock visibility toggle, desktop clock and system widgets, window animations, a red wallpaper, and the animated Crimson Pulse cursor. |
 | Files and terminal | Nautilus command bar, tabs and My Computer view, opening the current folder in a terminal, and file associations for Windows executables and installers. |
 | Gaming and graphics | Wine and standalone Proton with a separate SDR launch option, optional Mesa Vulkan backports, and MangoHud, GOverlay and LACT integration. |
