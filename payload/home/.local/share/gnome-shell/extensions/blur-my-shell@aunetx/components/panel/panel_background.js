@@ -57,54 +57,42 @@ export function create_panel_background(panel_box, monitor, settings, effects_ma
 
 /// Moves the blur under the panel, returning false if the panel isn't allocated yet.
 export function place_panel_background(actors) {
-    const geometry_actor = actors.widgets.panel;
-    const { panel_box, wrapper, background } = actors.widgets;
-
-    // complete pending layout before reading geometry
+    const { panel, panel_box, wrapper, background, background_group } = actors.widgets;
+    // Dash to Panel paints the tint on its outer wrapper. The background group
+    // is a sibling and already inherits the panel box’s padding.
+    const geometry_actor = actors.is_dtp_panel ? wrapper : panel;
     panel_box.get_allocation_box();
     geometry_actor.get_allocation_box();
-    const [width, height] = panel_box.get_size();
+    background_group.get_allocation_box();
     const [geometry_width, geometry_height] = geometry_actor.get_size();
+    const [actor_x, actor_y] = geometry_actor.get_position();
+    const [group_x, group_y] = background_group.get_position();
+    const x = actor_x - group_x;
+    const y = actor_y - group_y;
 
-    if (!width || !height || !geometry_width || !geometry_height)
+    if (![x, y, geometry_width, geometry_height].every(Number.isFinite) ||
+        geometry_width <= 0 || geometry_height <= 0)
         return false;
 
     if (actors.static_blur) {
-        // the static blur shows the whole monitor background, clipped to the panel
+        // The static pipeline samples the monitor wallpaper, then clips to the dock.
         const monitor = Main.layoutManager.findMonitorForActor(geometry_actor);
         if (!monitor)
             return false;
-
-        const [p_x, p_y] = panel_box.get_position();
-        const [p_p_x, p_p_y] = panel_box.get_parent().get_position();
-
-        let g_x, g_y;
-        if (actors.is_dtp_panel) {
-            const [w_x, w_y] = wrapper.get_position();
-            const [pan_x, pan_y] = geometry_actor.get_position();
-            g_x = w_x + pan_x;
-            g_y = w_y + pan_y;
-        } else {
-            [g_x, g_y] = geometry_actor.get_position();
-        }
-
-        const x = p_x + p_p_x - monitor.x + g_x;
-        const y = p_y + p_p_y - monitor.y + g_y;
-        background.set_clip(
-            Math.floor(x), Math.floor(y), Math.ceil(geometry_width), Math.ceil(geometry_height)
-        );
-        background.x = g_x - x;
-        background.y = g_y - y;
+        const [stage_x, stage_y] = geometry_actor.get_transformed_position();
+        if (![stage_x, stage_y].every(Number.isFinite))
+            return false;
+        const monitor_x = stage_x - monitor.x;
+        const monitor_y = stage_y - monitor.y;
+        const left = Math.floor(monitor_x);
+        const top = Math.floor(monitor_y);
+        background.set_clip(left, top,
+            Math.ceil(monitor_x + geometry_width) - left,
+            Math.ceil(monitor_y + geometry_height) - top);
+        background.set_position(x - monitor_x, y - monitor_y);
     } else {
-        if (actors.is_dtp_panel) {
-            background.x = wrapper.x + geometry_actor.x;
-            background.y = wrapper.y + geometry_actor.y;
-        } else {
-            background.x = geometry_actor.x;
-            background.y = geometry_actor.y;
-        }
-        background.width = geometry_width;
-        background.height = geometry_height;
+        background.set_position(x, y);
+        background.set_size(geometry_width, geometry_height);
     }
 
     return true;
